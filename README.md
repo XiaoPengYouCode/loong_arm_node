@@ -1,5 +1,5 @@
 # loong_arm_node
-A dora-rs node for basic usage of loong arm. The data frame here [gen72]([https://github.com/wangjianpeng200/dora_gen72_test](https://github.com/wangjianpeng200/dora_gen72_test/blob/main/examples/gen72/pick-place-gen72.py)
+A dora-rs node for basic usage of loong arm. The data frame here [gen72](https://github.com/wangjianpeng200/dora_gen72_test/blob/main/examples/gen72/pick-place-gen72.py)
 
 ## how to use
 
