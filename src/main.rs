@@ -34,6 +34,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                         .ok_or("Excepted Float64Array")?
                         .values()
                         .to_vec();
+                    let values = values[..5].to_vec();
+                    let grapper = values[6];
 
                     if !wait {
                         if encoding == "xyzrpys" {
@@ -43,15 +45,18 @@ fn main() -> Result<(), Box<dyn Error>> {
                                 } else {
                                     DataId::from("response_l_arm".to_string())
                                 };
-                                match loong_mani_sdk.handle_xyzrpy(arm.as_str(), values) {
+                                loong_mani_sdk.handle_xyzrpy(arm.as_str(), values).unwrap();
+                                std::thread::sleep(std::time::Duration::from_secs(1));
+                                match loong_mani_sdk.handle_finger(arm.as_str(), &[grapper]) {
                                     Ok(()) => {
+                                        std::thread::sleep(std::time::Duration::from_secs(1));
+
                                         node.send_output(
                                             outputid,
                                             MetadataParameters::new(),
                                             BooleanArray::from(vec![true]),
                                         )
                                         .unwrap();
-                                        loong_mani_sdk.send().unwrap();
                                     }
                                     Err(e) => {
                                         let mut metadata = MetadataParameters::new();
