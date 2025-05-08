@@ -1,7 +1,11 @@
-use dora_node_api::{arrow::array::Float64Array, DoraNode, Event};
+use dora_node_api::{
+    arrow::array::{BooleanArray, Float64Array},
+    dora_core::config::DataId,
+    DoraNode, Event, MetadataParameters, Parameter,
+};
 use openloong_sdk_basic_usage_example_rust::sdk::LoongManiSdk;
 use std::error::Error;
-use tracing::{error, Level};
+use tracing::{error, info, Level};
 
 pub mod utils;
 use utils::MetadataExt;
@@ -11,7 +15,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .with_max_level(Level::DEBUG)
         .init();
 
-    let (_, mut events) = DoraNode::init_from_env()?;
+    let (mut node, mut events) = DoraNode::init_from_env()?;
 
     let mut loong_mani_sdk = LoongManiSdk::default();
 
@@ -34,21 +38,51 @@ fn main() -> Result<(), Box<dyn Error>> {
                     if !wait {
                         if encoding == "xyzrpys" {
                             if arm == "right" || arm == "left" {
-                                loong_mani_sdk.handle_xyzrpy(arm.as_str(), values).unwrap();
+                                let outputid = if arm == "right" {
+                                    DataId::from("response_r_arm".to_string())
+                                } else {
+                                    DataId::from("response_l_arm".to_string())
+                                };
+                                match loong_mani_sdk.handle_xyzrpy(arm.as_str(), values) {
+                                    Ok(()) => {
+                                        node.send_output(
+                                            outputid,
+                                            MetadataParameters::new(),
+                                            BooleanArray::from(vec![true]),
+                                        )
+                                        .unwrap();
+                                        loong_mani_sdk.send().unwrap();
+                                    }
+                                    Err(e) => {
+                                        let mut metadata = MetadataParameters::new();
+                                        metadata.insert(
+                                            "error".to_string(),
+                                            Parameter::String(
+                                                format!("error: {e}. Failed to grasp").to_string(),
+                                            ),
+                                        );
+                                        node.send_output(
+                                            outputid,
+                                            metadata,
+                                            BooleanArray::from(vec![false]),
+                                        )
+                                        .unwrap();
+                                    }
+                                };
                             } else {
                                 error!("Unsupported arm: {}", arm);
                             }
+                        } else if encoding == "jointstate" {
+                            // loong_mani_sdk.handle_jointstate(arm, values)?;
+                            todo!("impl joint ctrl data handle in loong sdk");
                         }
-                        loong_mani_sdk.send().unwrap();
-                    } else if encoding == "jointstate" {
-                        // loong_mani_sdk.handle_jointstate(arm, values)?;
-                        todo!("impl joint ctrl data handle in loong sdk");
+                    } else {
+                        info!("waiting!");
                     }
                 } else {
                     continue;
                 }
             }
-
             _ => {}
         }
     }

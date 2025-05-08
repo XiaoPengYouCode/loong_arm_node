@@ -10,6 +10,5 @@ dora-node-api = { version = "0.3.10" }
 ndarray = "0.16.1"
 openloong_sdk_basic_usage_example_rust = { git = "https://github.com/XiaoPengYouCode/loong_sim_sdk_release_rust.git" }
 # openloong_sdk_basic_usage_example_rust = { path = "../loong_sim_sdk_release/rust_impl" }
-pyo3 = { version = "0.24.2", features = ["extension-module"] }
 tracing = "0.1.41"
 tracing-subscriber = "0.3.19"
