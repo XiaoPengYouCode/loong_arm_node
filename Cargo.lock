@@ -1866,7 +1866,6 @@ dependencies = [
 [[package]]
 name = "openloong_sdk_basic_usage_example_rust"
 version = "0.1.0"
-source = "git+https://github.com/XiaoPengYouCode/loong_sim_sdk_release_rust.git#73af44570eb7bdab05615379647305e2bc2242c1"
 dependencies = [
  "byteorder",
  "log",
